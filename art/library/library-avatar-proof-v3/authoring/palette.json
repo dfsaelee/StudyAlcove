@@ -1,0 +1,71 @@
+{
+  "version": 3,
+  "frame_size": [
+    24,
+    32
+  ],
+  "frame_count": 10,
+  "ramps": {
+    "skin": [
+      {
+        "name": "Golden honey",
+        "shadow": "#AE6952",
+        "midtone": "#E09D6F",
+        "highlight": "#F8C793",
+        "replacement_source": true
+      },
+      {
+        "name": "Warm porcelain",
+        "shadow": "#9B5D55",
+        "midtone": "#D99582",
+        "highlight": "#F2C2A5",
+        "replacement_source": false
+      },
+      {
+        "name": "Deep umber",
+        "shadow": "#603D3B",
+        "midtone": "#A66A52",
+        "highlight": "#D99B70",
+        "replacement_source": false
+      }
+    ],
+    "hair": [
+      {
+        "name": "Chestnut",
+        "shadow": "#785851",
+        "midtone": "#986E5B",
+        "highlight": "#B58A71",
+        "replacement_source": true,
+        "outline": "#463138"
+      },
+      {
+        "name": "Blue black",
+        "shadow": "#383B50",
+        "midtone": "#555C75",
+        "highlight": "#8490A8",
+        "replacement_source": false
+      }
+    ],
+    "clothing": [
+      {
+        "name": "Sea glass",
+        "shadow": "#547574",
+        "midtone": "#679087",
+        "highlight": "#88AFA0",
+        "replacement_source": true
+      },
+      {
+        "name": "Berry rose",
+        "shadow": "#744E68",
+        "midtone": "#A66E88",
+        "highlight": "#D59AA9",
+        "replacement_source": false
+      }
+    ]
+  },
+  "source_order": [
+    "shadow",
+    "midtone",
+    "highlight"
+  ]
+}

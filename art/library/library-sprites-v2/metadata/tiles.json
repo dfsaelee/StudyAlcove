@@ -1,0 +1,12 @@
+{
+  "tileSize": 16,
+  "columns": [
+    "oak_a",
+    "oak_b",
+    "wall",
+    "wainscot",
+    "door_left",
+    "door_right",
+    "threshold"
+  ]
+}

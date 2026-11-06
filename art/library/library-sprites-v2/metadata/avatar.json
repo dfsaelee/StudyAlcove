@@ -1,0 +1,52 @@
+{
+  "frame": [
+    24,
+    32
+  ],
+  "pivot": [
+    12,
+    29
+  ],
+  "layers": [
+    "body",
+    "outfit",
+    "hair"
+  ],
+  "rows": [
+    "south",
+    "west",
+    "east",
+    "north"
+  ],
+  "actions": {
+    "idle": {
+      "columns": [
+        0,
+        1
+      ],
+      "fps": 2
+    },
+    "walk": {
+      "columns": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "fps": 8
+    },
+    "sit": {
+      "columns": [
+        6
+      ],
+      "fps": 0
+    },
+    "focus": {
+      "columns": [
+        7,
+        8
+      ],
+      "fps": 3
+    }
+  }
+}
