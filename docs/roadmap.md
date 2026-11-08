@@ -14,13 +14,13 @@ StudyAlcove is a cozy browser-based multiplayer study room. Players join a room 
 **Agent workflow:** See `AGENTS.md` for the two-thread Plan Mode / implementation workflow, human-readable code conventions, and milestone handoff rules.
 
 ## Guiding principles
-1. Backend first. First build HTTP APIs and a Go WebSocket server testable with scripts; frontend comes after the core room behavior works.
+1. Backend first. First build HTTP APIs and a Node.js WebSocket server testable with scripts; frontend comes after the core room behavior works.
 2. Start as a modular monolith (`room-server`) and PostgreSQL; extract a session service once there is a meaningful service boundary.
 3. Real-time position updates are ephemeral; completed study sessions are durable.
 4. Use one logical room per room ID; one backend process may host many rooms. One Kubernetes pod per room is NOT the starting architecture.
 5. Make the server authoritative for room membership, movement constraints, timer start/end timestamps, and study credit.
 6. Every milestone must have passing tests, run instructions, and explicit acceptance criteria.
-7. Use pinned stable dependency versions compatible with the environment. Prefer `net/http`, `github.com/coder/websocket`, `pgx`, Go's testing package; use Redis/Kafka/Kubernetes only in the milestones that require them.
+7. Use pinned stable dependency versions compatible with the environment. Prefer Node’s built-in HTTP and test modules; select WebSocket and PostgreSQL libraries when their milestones require them; use Redis/Kafka/Kubernetes only in the milestones that require them.
 8. Avoid GraphQL, complex auth, microservice proliferation, and premature infrastructure. They are future optional experiments, not MVP blockers.
 9. Avoid hard-coded secrets and unbounded memory/queues. Validate inputs, authenticate connection identities, use origin allowlists and request limits, keep basic observability.
 10. Never claim scale or latency improvements unless measured with scripts and recorded results.
@@ -34,10 +34,10 @@ StudyAlcove is a cozy browser-based multiplayer study room. Players join a room 
 - Two-browser demo, backend integration tests, graceful shutdown and Docker Compose startup instructions all work.
 
 ## Initial stack
-- Backend: Go, `net/http`, `github.com/coder/websocket`, `context.Context`, structured logging, `go test -race`.
-- Storage: PostgreSQL, SQL migrations, `pgx` connection pool. In-memory room state until distributed milestone.
+- Backend: Node.js 22, plain JavaScript ES modules, built-in HTTP and test modules, structured logging. Add a WebSocket library when needed.
+- Storage: PostgreSQL, SQL migrations and a Node.js PostgreSQL client and connection pool selected when needed. In-memory room state until distributed milestone.
 - Frontend (later): React + TypeScript + Vite + PixiJS, minimal art placeholders.
-- Local ops: Docker Compose for PostgreSQL, Go dev process. Dockerize later.
+- Local ops: Docker Compose for PostgreSQL, Node.js dev process. Dockerize later.
 - Later: Protobuf/gRPC between room-server and session-service; Redis pub/sub + presence lease; Kafka for durable events; OpenTelemetry + Prometheus + Grafana; kind for Kubernetes; AWS EC2 + Docker Compose first.
 
 ## Suggested repository layout
@@ -53,13 +53,10 @@ studyalcove/
     runbooks/
   apps/
     room-server/
-      cmd/server/main.go
-      internal/config/
-      internal/httpapi/
-      internal/ws/
-      internal/room/
-      internal/session/
-      internal/storage/
+      src/main.js
+      src/config.js
+      src/http.js
+      test/
     session-service/           # add only at Milestone 6
     web/                       # add only at Milestone 5
   proto/                       # add only at Milestone 6
@@ -72,7 +69,7 @@ studyalcove/
     load-test/
   .github/workflows/
 ```
-Use clear Go package boundaries without forced abstractions. Folder structure is a proposal; adapt if simpler.
+Use clear Node.js module boundaries without forced abstractions. Folder structure is a proposal; adapt if simpler.
 
 ## API and WebSocket contract (initial proposal)
 REST:
@@ -96,31 +93,31 @@ Data model v1:
 Use proper foreign keys, constraints, uniqueness of idempotency keys scoped to the guest/action, timestamps in UTC, and migration rollback documentation. Credit computed from trusted server time; handle cancellations, disconnects and duplicate completes explicitly. Do not pretend a client timer alone makes study sessions cheat-proof.
 
 ## Milestone 0 — Foundation
-**Agent builds:** Go module, minimal HTTP service, config/env validation, logging, graceful shutdown, README, Makefile/task commands, one unit test, Docker Compose for PostgreSQL (DB needn't be connected yet), CI for formatting/vet/tests.
-**Learner TODO:** Implement or explain the difference between `/healthz` and `/readyz`; add a graceful shutdown timeout.
-**Tests:** `go test ./...`, `go vet ./...`, `curl localhost:8080/healthz`; ctrl-C exits cleanly.
-**Teach:** Go module, handlers, contexts, signal handling, dependency lifecycle.
+**Agent builds:** Node.js package, minimal HTTP service, config/env validation, logging, graceful shutdown, README, npm scripts, unit tests, Docker Compose for PostgreSQL (DB needn't be connected yet), and CI for syntax/whitespace/tests.
+**Learner TODO:** Add a readiness handler test and explain the difference between `/healthz` and `/readyz`.
+**Tests:** `npm run check`, `curl localhost:8080/healthz`; ctrl-C exits cleanly.
+**Teach:** Node.js modules, handlers, event loop, signal handling, dependency lifecycle.
 **Stop:** request approval before milestone 1.
 
 ## Milestone 1 — Room HTTP API
 **Agent builds:** guest creation flow, room creation and metadata, input validation, error responses, in-memory repository interfaces (or DB if integration is simple), unit tests, request examples.
 **Learner TODO:** Implement room code generation and validation; review why secure randomness matters.
 **Tests:** valid create/read; invalid names, duplicate IDs, room not found; input bounds; concurrent room creation.
-**Teach:** REST semantics, IDs, data races, interfaces, errors.
+**Teach:** REST semantics, IDs, concurrent requests, module boundaries, errors.
 **Stop.**
 
 ## Milestone 2 — WebSocket presence
-**Agent builds:** authenticated WS handshake, room hub with join/leave, one per-connection read loop, safe outbound write approach, bounded outbound queues, heartbeat/ping or read deadlines, snapshot on join, smoke-test CLI with two clients.
+**Agent builds:** authenticated WS handshake, room hub with join/leave, per-connection message handling, safe outbound write approach, bounded outbound queues, heartbeat/ping or read deadlines, snapshot on join, smoke-test CLI with two clients.
 **Learner TODO:** Implement player leave cleanup and bounded-queue overflow behavior; understand why network writes must not block room-wide coordination.
-**Tests:** two clients see same room, leave broadcasts, invalid origin/credential rejected, slow client handling, race detector.
-**Teach:** goroutines, channels, mutexes, backpressure, cancellation, WebSocket handshake.
+**Tests:** two clients see same room, leave broadcasts, invalid origin/credential rejected, slow client handling, concurrency stress tests.
+**Teach:** event loop, asynchronous callbacks, backpressure, cancellation, WebSocket handshake.
 **Stop.**
 
 ## Milestone 3 — Authoritative room state
-**Agent builds:** tile-based movement command validation, avatar positions, basic occupied desk state, snapshot sequencing; implement serialized room command processing or a clearly synchronized state model.
+**Agent builds:** tile-based movement command validation, avatar positions, basic occupied desk state, snapshot sequencing; implement serialized room command processing and explicit asynchronous state ownership.
 **Learner TODO:** Implement bounds checks and reject movement that exceeds configured speed/distance; write tests.
-**Tests:** concurrent move/join/leave under `-race`; out-of-bounds rejects; snapshot state matches later broadcasts; duplicate moves handled appropriately.
-**Teach:** ownership of mutable state, event loops vs mutexes, consistency models, client prediction vs authority.
+**Tests:** concurrent move/join/leave under concurrent requests; out-of-bounds rejects; snapshot state matches later broadcasts; duplicate moves handled appropriately.
+**Teach:** ownership of mutable state, event-loop ownership and asynchronous ordering, consistency models, client prediction vs authority.
 **Stop.**
 
 ## Milestone 4 — Persistent focus sessions
@@ -138,7 +135,7 @@ Use proper foreign keys, constraints, uniqueness of idempotency keys scoped to t
 **Stop. This is the first public demo candidate.**
 
 ## Milestone 6 — Meaningful gRPC boundary
-**Agent builds:** extract `session-service` into separate Go process, Protobuf service for Start/Complete/GetSession; room-server calls it with deadlines and meaningful error mapping; keep PostgreSQL owned by session-service. Provide grpc health checks and local Compose networking.
+**Agent builds:** extract `session-service` into separate Node.js process, Protobuf service for Start/Complete/GetSession; room-server calls it with deadlines and meaningful error mapping; keep PostgreSQL owned by session-service. Provide grpc health checks and local Compose networking.
 **Learner TODO:** Add deadline handling and one integration test simulating session-service timeout.
 **Tests:** session service down -> room movement still works, session completion gives explicit retryable error, no duplicate credit, protobuf generation repeatable.
 **Teach:** network boundaries, contract evolution, deadlines, partial failures.
@@ -194,7 +191,7 @@ Then implement ONLY that milestone; run tests and report actual results/errors. 
 **Code review protocol:** When the learner supplies a solution to a TODO, review correctness, edge cases, race safety, error handling, and clarity. Offer hints before writing the full answer unless asked for it. Keep a `docs/learning-log.md` with concise summaries, decision records, and questions.
 
 ## Starter prompt to paste into a coding agent
-You are my senior Go backend engineer and technical tutor. Read `docs/roadmap.md` in full and follow it as the project source of truth. I want to use AI for speed but understand every architectural decision. Start with Milestone 0 ONLY, backend-first. Before coding, show the proposed folder structure, components, data flow, acceptance tests, and one scoped learner TODO. Then implement the milestone, actually run available checks, and stop. Do not build the frontend, gRPC, Redis, Kafka, Kubernetes or AWS infrastructure yet. If the plan has ambiguity, make the simplest reasonable choice and document it. Do not claim passing tests that were not executed. Give me a concise tutorial on the important code and 3 check-for-understanding questions at the end. Wait for my review before proceeding to Milestone 1.
+You are my senior Node.js backend engineer and technical tutor. Read `docs/roadmap.md` in full and follow it as the project source of truth. I want to use AI for speed but understand every architectural decision. Start with Milestone 0 ONLY, backend-first. Before coding, show the proposed folder structure, components, data flow, acceptance tests, and one scoped learner TODO. Then implement the milestone, actually run available checks, and stop. Do not build the frontend, gRPC, Redis, Kafka, Kubernetes or AWS infrastructure yet. If the plan has ambiguity, make the simplest reasonable choice and document it. Do not claim passing tests that were not executed. Give me a concise tutorial on the important code and 3 check-for-understanding questions at the end. Wait for my review before proceeding to Milestone 1.
 
 ## Resume/portfolio evidence to collect
 - 60-second two-browser demo video and architecture diagram.
@@ -202,4 +199,4 @@ You are my senior Go backend engineer and technical tutor. Read `docs/roadmap.md
 - Load test script, measured p95 latencies and concurrency with hardware/conditions noted.
 - Failure demo: kill a room process, observe reconnect/recovery; kill session-service and validate graceful degradation.
 - One detailed architecture decision record (why WebSockets, why Redis, why Kafka only for durable events, why gRPC extraction).
-- CI tests, race detection, deploy workflow and a short operations runbook.
+- CI tests, concurrency checks, deploy workflow and a short operations runbook.

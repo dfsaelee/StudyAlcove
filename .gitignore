@@ -11,12 +11,6 @@ dist/
 coverage/
 *.tsbuildinfo
 
-# Go build and test output.
-/bin/
-*.test
-*.test.exe
-coverage.out
-
 # Python bytecode and virtual environments used by art tools.
 __pycache__/
 *.py[cod]

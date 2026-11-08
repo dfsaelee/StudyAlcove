@@ -17,13 +17,18 @@ These instructions apply to coding agents in this repository. Read [the roadmap]
 
 ## Code and learning
 
-- Write clear, idiomatic, human-scale Go with straightforward control flow and focused responsibilities. Avoid speculative abstractions, sweeping refactors and clever compression.
+- Write clear, idiomatic, human-scale JavaScript with straightforward control flow and focused responsibilities. Avoid speculative abstractions, sweeping refactors and clever compression.
 - Explain why and document invariants, concurrency assumptions and non-obvious behavior; do not narrate obvious code. Handle errors explicitly and make ownership, synchronization, cancellation and shutdown understandable.
-- Keep dependencies limited and justified, match repository style and run `gofmt`.
+- Keep dependencies limited and justified, match repository style and run the configured checks.
 - Use AI for scaffolding, wiring, fixtures, configuration and repetitive work. Explain important components and trace a concrete request or event through them.
 - Where practical, leave 1–2 bounded learner implementation or test TODOs with inputs, expected behavior and edge cases. Do not withhold essential scaffolding.
 - When reviewing learner code, give hints and reasoning before a complete solution unless the user asks for one. Explain concurrency, WebSockets, gRPC, persistence and failure handling in more depth when introduced.
 - Never claim a feature, performance target or test works without verification.
+
+## Documentation
+
+- Keep `README.md` a concise project entry point with accurate setup, run and check commands. Update it when those instructions or user-facing capabilities change; do not use it as a milestone progress report or append a section for each milestone.
+- Record milestone progress, implementation decisions and learner notes in `docs/learning-log.md` or `docs/decisions/` instead.
 
 ## Milestone completion
 
@@ -33,7 +38,7 @@ Finish with changed files, a brief architecture and data-flow explanation, learn
 
 ## Architecture boundaries
 
-- Start backend-first with a modular Go application and server-authoritative room state.
+- Start backend-first with a modular Node.js application and server-authoritative room state.
 - Use WebSockets for ephemeral presence and movement; PostgreSQL is the source of truth for durable study sessions.
 - Introduce gRPC, Redis, Kafka, observability and Kubernetes only when their planned milestones justify them.
 - A logical room is not a Kubernetes pod; one room-server instance can host multiple logical rooms.
