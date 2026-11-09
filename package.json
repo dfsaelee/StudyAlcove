@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node apps/room-server/src/main.js",
     "test": "node --test",
-    "check:syntax": "node --check apps/room-server/src/main.js && node --check apps/room-server/src/config.js && node --check apps/room-server/src/http.js && node --check scripts/check-format.js && node --check apps/room-server/test/http.test.js && node --check apps/room-server/test/config.test.js && node --check apps/room-server/src/store.js && node --check apps/room-server/test/api.test.js",
+    "check:syntax": "node --check apps/room-server/src/main.js && node --check apps/room-server/src/config.js && node --check apps/room-server/src/http.js && node --check scripts/check-format.js && node --check apps/room-server/test/http.test.js && node --check apps/room-server/test/config.test.js && node --check apps/room-server/src/store.js && node --check apps/room-server/test/api.test.js && node --check apps/room-server/src/http-helpers.js && node --check apps/room-server/src/guest-handlers.js && node --check apps/room-server/src/room-handlers.js",
     "check:format": "node scripts/check-format.js",
     "check": "npm run check:syntax && npm run check:format && npm test"
   }
