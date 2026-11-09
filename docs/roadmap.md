@@ -100,7 +100,7 @@ Use proper foreign keys, constraints, uniqueness of idempotency keys scoped to t
 **Stop:** request approval before milestone 1.
 
 ## Milestone 1 — Room HTTP API
-**Agent builds:** guest creation flow, room creation and metadata, input validation, error responses, in-memory repository interfaces (or DB if integration is simple), unit tests, request examples.
+  **Agent builds:** guest creation flow, room creation and metadata, input validation, error responses, in-memory repository interfaces (or DB if integration is simple), unit tests, request examples.
 **Learner TODO:** Implement room code generation and validation; review why secure randomness matters.
 **Tests:** valid create/read; invalid names, duplicate IDs, room not found; input bounds; concurrent room creation.
 **Teach:** REST semantics, IDs, concurrent requests, module boundaries, errors.

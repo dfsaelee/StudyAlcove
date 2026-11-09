@@ -12,6 +12,17 @@ npm start
 
 The server runs at `http://127.0.0.1:8080`. Press Ctrl-C to stop it.
 
+To try the temporary guest and room API from another PowerShell terminal:
+
+```powershell
+$guest = Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8080/api/guests -ContentType 'application/json' -Body '{"displayName":"Robin"}'
+$room = Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8080/api/rooms -ContentType 'application/json' -Body '{"name":"Library"}'
+Invoke-RestMethod -Uri "http://127.0.0.1:8080/api/rooms/$($room.code)"
+```
+
+Guest credentials are in `$guest.credential`; keep them private. Guests and rooms are in memory and disappear on restart. The development API does not yet authenticate requests. See [HTTP API notes](docs/learning-log.md#http-api--milestone-1) for limits and response shapes.
+
+
 To start the local database in PowerShell, create a local env file and change the example password:
 
 ```powershell

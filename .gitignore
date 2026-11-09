@@ -24,5 +24,7 @@ Thumbs.db
 .idea/
 
 # Local design exploration and artwork.
+go run 
 /art/
 /docs/design/
+/docs
